@@ -45,7 +45,7 @@ flowchart LR
 - How to train a subword tokenizer (WordPiece) on domain-specific text
 - How to configure and train a neural text classifier end-to-end
 - How to load a pretrained model from MLflow and run inference
-- How to interpret predictions using label attention attributions
+- How to interpret predictions using the [Captum](https://captum.ai/docs/introduction) package 
 
 ## Before you start
 
