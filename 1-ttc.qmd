@@ -380,10 +380,12 @@ A text classification model in `torchTextClassifiers` is built from three compon
    A self-attention layer can be added to capture word order and context.
 
 2. [**CategoricalVariableNet**](https://inseefrlab.github.io/torchTextClassifiers/architecture/overview.html#component-3-categorical-variable-handler) *(optional)*: encodes additional categorical features and merges
-   them with the text representation. Not used in this dataset.
+   them with the text representation. **Not used in this dataset.**
 
 3. [**ClassificationHead**](https://inseefrlab.github.io/torchTextClassifiers/architecture/overview.html#component-4-classification-head): projects the final representation onto `num_classes` dimensions.
    The highest value determines the predicted class.
+
+![torchTextClassifier architecture overview](img/ttc_architecture.png)
 
 These are configured through `ModelConfig` and assembled automatically by `torchTextClassifiers`. You can see some `ModelConfig` examples [here](https://inseefrlab.github.io/torchTextClassifiers/architecture/overview.html#usage-examples) and for `torchTextClassifiers` [here](https://inseefrlab.github.io/torchTextClassifiers/api/wrapper.html)
 
@@ -412,6 +414,10 @@ Using the `torchTextClassifiers` package, create a `ModelConfig`. Then create a 
 Build a  `ModelConfig` with `embedding_dim` and `num_classes`. Pass both to `torchTextClassifiers(tokenizer=..., model_config=..., value_encoder=...)`.
 </details>
 
+<details>
+<summary>Clue here</summary>
+Build a  `ModelConfig` with `embedding_dim` and `num_classes`. Pass both to `torchTextClassifiers(tokenizer=..., model_config=..., value_encoder=...)`.
+</details>
 
 ::: {.callout-note appearance="simple" collapse="true"}
 ## Key parameter
@@ -440,8 +446,10 @@ ttc = torchTextClassifiers(
 
 ## Question 2 — Prepare training
 
-Define a `TrainingConfig` and train on a small subsample so it completes quickly. __Use only 1 epoch for fast training__. A model trained on the full dataset for many epochs is loaded from MLflow in the next step. Have a careful look at the hyperparameters. Do you understand what they do? You can see the `TrainingConfig` documentation [here](https://inseefrlab.github.io/torchTextClassifiers/api/configs.html#trainingconfig).
-
+<details>
+<summary>Clue here</summary>
+Create a `TrainingConfig(lr=..., batch_size=..., num_epochs=...)` and call `ttc.train(X_train=..., y_train=..., X_val=..., y_val=..., training_config=..., verbose=True)`. Train on a small subsample so it completes quickly. __Use only 1 epoch for fast training__.
+</details>
 
 ::: {.callout-note appearance="simple" collapse="true"}
 ## Play with hyperparameters
@@ -531,12 +539,12 @@ with mlflow.start_run() as run:
     )
 ```
 
-
-**Loading the model back from MLflow:**
+::: {.callout-tip appearance="simple" collapse="true"}
+## Tip - Loading the model back from MLflow
 
 `torchTextClassifiers.load()` reads `model_checkpoint.ckpt`, `tokenizer.pkl`, `value_encoder.pkl`, and the metadata file that were saved by `ttc.save()` — the same files that `ttc.train()` produced.
 
-```{python}
+```python
 #| label: load-from-run
 #| code-overflow: scroll
 #| output: true
@@ -549,6 +557,7 @@ ttc_loaded = torchTextClassifiers.load(local_dir)
 
 print(ttc_loaded)
 ```
+
 :::
 
 ## Question 3 — Load the pretrained model from MLflow
@@ -572,14 +581,21 @@ ttc.pytorch_model.eval()
 
 ```
 
+:::
 
 # Prediction and explainability
 
 Once the model is trained, we can use it to predict NACE codes for new text descriptions.
+Beyond a simple prediction, we also want to understand why a given NACE code was predicted — specifically, which words in the input text contributed the most to the decision.
+
+You can refer to this[tutorial](https://inseefrlab.github.io/torchTextClassifiers/tutorials/explainability.html) on explainability for more details.
+
 To understand which tokens drove a prediction, we use **captum's `LayerIntegratedGradients`**,
 applied to the model's embedding matrix. This method computes the gradient of the output
 with respect to each input token embedding, integrated along a path from a baseline — attributing
 a score to each token that reflects its contribution to the predicted class.
+
+You can see the documentation for `LayerIntegratedGradients` [here](https://captum.ai/api/layer.html#layer-integrated-gradients)
 
 ::: {.callout-important}
 ## On the interpretation of integrated gradients
@@ -594,8 +610,14 @@ treated as an exploratory tool rather than a definitive causal explanation.
 
 ## Question 1 — Generate top-5 predictions with confidence scores
 
-Sample some text from the `X_text` array in a variable called `example_texts`.
-Call `ttc.predict(np.array(example_texts), top_k=5, explain_with_captum=True)`. The result is a dictionary with keys `prediction`, `confidence` and `captum_attributions` among others. Inspect the content of the dictionary. Do you understand what it contains?
+Sample a few texts from the `X_test` array into a variable called`example_texts`.
+Then call `ttc.predict(np.array(example_texts), top_k=5, explain_with_captum=True)` and print the main fields of the resulting dictionary.
+The result is a dictionary with keys `prediction`, `confidence` and `captum_attributions` among others.
+
+<details>
+<summary>Clue here</summary>
+The result is a dict with keys `prediction`, `confidence` and `captum_attributions` among others.
+</details>
 
 ```{python}
 #| label: predict-examples
@@ -621,7 +643,10 @@ for i, text in enumerate(example_texts):
 
 ## Question 2 — Visualise word attributions for the top prediction
 
-Extract `captum_attributions` from the results, then use `map_attributions_to_word()`, `map_attributions_to_char()`, `plot_attributions_at_word()`, and `plot_attributions_at_char()` from `torchTextClassifiers.utilities.plot_explainability`.
+Now, we want to retrieve the most important words driving the NACE prediction. During inference, the model computes an attribution score for each token — stored in the `captum_attributions` field of the results — indicating how much each token contributed to the final decision. To do so:
+  - extract `captum_attributions` from results;
+  - use `map_attributions_to_word()` and `map_attributions_to_char()` to aggregate token-level attribution scores up to the word and character levels;
+  - visualize the resulting attributions with `plot_attributions_at_word()` and `plot_attributions_at_char()` from `torchTextClassifiers.utilities.plot_explainability`.
 
 ::: {.callout-note appearance="simple" collapse="true"}
 ## Understanding the result fields
