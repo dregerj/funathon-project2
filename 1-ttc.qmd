@@ -23,7 +23,7 @@ Two main approaches exist for this task:
 | Approach | How it works | Best when |
 |---|---|---|
 | **Supervised (this notebook)** | Train a neural network on labelled examples | Large labelled dataset available, low-latency inference needed |
-| **RAG** (see notebook 2) | Retrieve similar examples, ask a LLM to decide | Few labelled examples, need for explainability via retrieved context |
+| **RAG** (see notebook 2) | Retrieve similar examples, ask a LLM to decide | Few labelled examples |
 
 In this notebook, we use the supervised approach: the model learns directly from thousands of labelled examples and can predict at inference time without calling an external API.
 
@@ -42,7 +42,7 @@ flowchart LR
 ## What you will learn
 
 - How to prepare and split a labelled text dataset
-- How to train a subword tokenizer (WordPiece) on domain-specific text
+- How to train a subword tokenizer (WordPiece) on domain-specific text (tokenizers are introduced in @sec-tokenizer)
 - How to configure and train a neural text classifier end-to-end
 - How to load a pretrained model from MLflow and run inference
 - How to interpret predictions using the [Captum](https://captum.ai/docs/introduction) package
@@ -100,7 +100,7 @@ The notebook loads this file automatically at startup with `load_dotenv()`, maki
 
 # Load the data
 
-The dataset consists of **synthetic labelled examples** generated for the NACE 2025 nomenclature.
+The dataset consists of **synthetic labelled examples** generated for the NACE rev 2.1 nomenclature.
 Each row contains a short text description (`label`) and the corresponding NACE code (`code`).
 
 ::: {.callout-tip collapse="false" icon=false}
@@ -122,7 +122,7 @@ load_dotenv(override=True)
 
 ## Question 2 — Load the dataset from s3
 
-Use Polars to load the parquet file directly from this public URL:
+Use [Polars](https://docs.pola.rs/api/python/stable/reference/index.html) to load the parquet file directly from this public URL:
 
 ```
 https://minio.lab.sspcloud.fr/projet-formation/diffusion/funathon/2026/project2/generation_None_temp08.parquet
@@ -286,7 +286,7 @@ value_encoder = ValueEncoder(label_encoder=encoder)
 
 :::
 
-# Applying a tokenizer
+# Applying a tokenizer {#sec-tokenizer}
 
 ## Why tokenization?
 
