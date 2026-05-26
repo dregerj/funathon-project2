@@ -431,6 +431,7 @@ Key training hyperparameters:
 ## `<i class="bi bi-book"></i>`{=html} Exercice 4: Train the model
 
 `torchTextClassifiers` provides a high-level wrapper that combines the value encoder, tokenizer, model components, and training loop. You will do two things: create a model, and then train the model. It is important to distinguish these two steps clearly. To do so, `torchTextClassifiers` offers two tools: `ModelConfig` defines the model and `TrainingConfig` defines the training process.
+:::
 
 ## Question 1 — Create the classifier
 
@@ -620,7 +621,7 @@ To sample random texts, you can use for instance `random.sample(range(len(X_test
 
 ```{python}
 #| label: predict-examples
-#| #| code-fold: true
+#| code-fold: true
 #| code-summary: Click to see the answer
 #| code-overflow: scroll
 #| output: true
