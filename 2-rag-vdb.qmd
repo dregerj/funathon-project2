@@ -79,6 +79,21 @@ More information [here](https://github.com/openai/openai-python) about `OpenAI A
 
 (Go to next question to see the answer).
 
+```{python}
+#| label: dotenv
+#| code-fold: true
+#| code-summary: Click to see the answer
+#| code-overflow: scroll
+
+from openai import OpenAI
+
+client_llmlab = OpenAI(
+    base_url=os.environ["LLMLAB_URL"],
+    api_key=os.environ["LLMLAB_API_KEY"],
+)
+
+```
+
 ### Question 2
 
 - Print all the available models (kindly made available to everyone by the SSPcloud team ❤️)

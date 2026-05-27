@@ -103,7 +103,7 @@ EMB_MODEL_NAME = "qwen3-embedding-8b"   # Embedding model
 GEN_MODEL_NAME = "gemma4-26b-moe"          # Generative model
 
 # Qdrant
-COLLECTION_NAME = "nace-collection"
+COLLECTION_NAME = "nace-collection-test"
 RETRIEVER_LIMIT = 5    # Number of candidates returned by the vector search
 
 # Generation

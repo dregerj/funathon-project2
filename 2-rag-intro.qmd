@@ -188,7 +188,7 @@ load_dotenv()
 
 To verify that a variable was loaded correctly:
 
-```python
+```{python}
 import os
 try:
     QDRANT_URL = os.environ["QDRANT_URL"]
